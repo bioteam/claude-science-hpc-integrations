@@ -1,0 +1,32 @@
+# Secrets / local config — never commit
+*.env
+.env
+.env.*
+*.pem
+*.key
+*_rsa
+*_ed25519
+credentials
+.aws/
+*.tfvars
+terraform.tfstate*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Scratch
+tmp/
+scratch/
+*.log
