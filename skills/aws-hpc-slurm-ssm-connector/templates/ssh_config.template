@@ -1,0 +1,41 @@
+# ============================================================================
+# ssh_config template - Claude Science -> AWS ParallelCluster (Slurm) over SSM
+# ----------------------------------------------------------------------------
+# Place in ~/.ssh/config on the host where the platform opens SSH connections.
+# Replace every <PLACEHOLDER>. See 01-setup-ssm-ssh.md for the full guide.
+#
+# Prerequisites on that host:
+#   - AWS CLI v2 + session-manager-plugin on PATH
+#   - AWS credentials with ssm:StartSession on the target instance
+#     (provide via Customize -> Credentials; see 02-secrets-and-credentials.md)
+# ============================================================================
+
+Host pcluster-ssm
+    # EC2 instance-id of the ParallelCluster head / login node
+    HostName        <INSTANCE_ID>            # e.g. i-0123456789abcdef0
+    User            <SSH_USER>               # ec2-user, or 'ubuntu' on Ubuntu 22.04
+    IdentityFile    <PATH_TO_HEADNODE_KEY>   # e.g. ~/.ssh/pcluster_key
+
+    # --- Transport: open SSH *through* an SSM session (required) ---
+    # IMPORTANT (macOS): prepend PATH so a GUI app (minimal launchd PATH) can find
+    #   the aws CLI AND the session-manager-plugin it calls by name. An absolute
+    #   path to aws alone is NOT enough. See 04-troubleshooting.md A.1.
+    #   On Linux the plugin is normally already on PATH — you can drop the PATH=
+    #   prepend, or point it at wherever `which aws session-manager-plugin` shows
+    #   (commonly /usr/bin or /usr/local/bin).
+    # --document-name is AWS-StartSSHSession — the document the least-privilege
+    #   IAM policy allow-lists. If you must use AWS-StartSSHSessionToHost, add it
+    #   to the policy's document list too, or SessionDocumentAccessCheck denies it.
+    ProxyCommand    sh -c "PATH=/opt/homebrew/bin:/usr/local/bin:$PATH \
+                        aws ssm start-session --profile <AWS_PROFILE> --target %h \
+                        --document-name AWS-StartSSHSession \
+                        --parameters 'portNumber=%p' --region <REGION>"
+    # NOTE on --profile: on a desktop install the ProxyCommand runs on your own
+    #   machine and the AWS CLI reads ~/.aws/credentials, so --profile <name> IS
+    #   required. Drop it only if creds are injected as env vars where the
+    #   connection is opened. See 04-troubleshooting.md A.1.
+
+    # Keep the tunnel alive during long input staging / output harvests
+    ServerAliveInterval 30
+    ServerAliveCountMax 4
+    TCPKeepAlive        yes

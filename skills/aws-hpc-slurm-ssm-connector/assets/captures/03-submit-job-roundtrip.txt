@@ -1,0 +1,24 @@
+# --- submit_job through the SSM connector (repl tool) ---
+c = host.compute.create("ssh:tenvie-hpc-login-ssm")
+job = c.submit_job(
+    command=job_script,          # plain bash; srun hostname + writes slurm_result.txt
+    intent="Plain Slurm validation job via SSM connector",
+    outputs=["slurm_result.txt"],
+    timeout_seconds=600,
+)
+# JOB_ID 3b124ae5-882e-4852-ba96-fc4ba5f1b093
+
+# --- compute_done notification payload ---
+{
+  "job_id": "3b124ae5-882e-4852-ba96-fc4ba5f1b093",
+  "provider": "ssh:tenvie-hpc-login-ssm",
+  "status": "success",
+  "exit_code": 0,
+  "featured_files": ["hpc/3b124ae5-.../slurm_result.txt"],
+  "remote_workdir": "/shared/scratch/.claude-science/jobs/3b124ae5-..."
+}
+
+# --- harvested slurm_result.txt (ran on a compute node, not the login node) ---
+run_utc=2026-07-01T16:55:51Z
+compute_node=cpu-st-1
+slurm_job_id=181286

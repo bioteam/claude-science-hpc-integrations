@@ -1,0 +1,13 @@
+$ # submit a plain Slurm batch job on the login node (call_command, login_shell=True)
+$ sbatch --parsable cs_demo.sbatch
+Submitted batch job 181287
+$ squeue -u $USER -o "%.8i %.12P %.16j %.8u %.2t %.10M %.6D %R"
+   JOBID    PARTITION             NAME     USER ST       TIME  NODES NODELIST(REASON)
+  181287          cpu    cs-slurm-demo  hpcuser  R       0:02      1 cpu-st-1
+$ # ...after completion...
+$ sacct -j 181287 --format=JobID,JobName%18,Partition,State,ExitCode,Elapsed,NodeList%22
+JobID                   JobName  Partition      State ExitCode    Elapsed               NodeList
+------------ ------------------ ---------- ---------- -------- ---------- ----------------------
+181287            cs-slurm-demo        cpu  COMPLETED      0:0   00:00:21               cpu-st-1
+181287.batch              batch             COMPLETED      0:0   00:00:21               cpu-st-1
+181287.0               hostname             COMPLETED      0:0   00:00:00               cpu-st-1

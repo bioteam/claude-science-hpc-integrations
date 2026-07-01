@@ -37,7 +37,9 @@ Guidance:
 - Keep the body focused on the procedure. Push long reference tables into
   `references/` and heavy logic into `scripts/`.
 
-Start from [`_template/`](_template) — copy it to `skills/<your-skill>/` and edit.
+Start by copying an existing skill folder (e.g.
+[`aws-hpc-slurm-ssm-connector/`](aws-hpc-slurm-ssm-connector)) to
+`skills/<your-skill>/`, then replace its `SKILL.md` and contents.
 
 ## Installing a skill
 
@@ -49,5 +51,14 @@ ln -s "$PWD/skills/<skill-name>" ~/.claude/skills/<skill-name>
 
 ## Index
 
-_No published skills yet — add yours here as `- **name** — one-line summary` when you
-land it. The [`_template`](_template) folder is a starter, not a published skill._
+- **[`schrodinger-aws-hpc-ssm-connector`](schrodinger-aws-hpc-ssm-connector)** —
+  connect Claude Science to a Schrödinger Suite jobserver on an AWS ParallelCluster
+  (or any Slurm HPC) whose head node is reachable only through AWS SSM, then submit,
+  monitor, harvest, and postmortem jobs. Field-verified end-to-end.
+- **[`aws-hpc-slurm-ssm-connector`](aws-hpc-slurm-ssm-connector)** — connect Claude Science
+  to a private-subnet AWS ParallelCluster (or any Slurm HPC) whose head node is
+  reachable only through AWS SSM, then submit, monitor, and harvest plain Slurm
+  jobs. The transport-only sibling of the Schrödinger connector (no jobserver
+  layer). Field-verified end-to-end.
+
+Add new skills here as `- **name** — one-line summary` when you land them.

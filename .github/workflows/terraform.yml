@@ -1,0 +1,77 @@
+name: terraform-lint-security
+
+# Lint and statically scan the deployable Terraform example on every PR / push
+# that touches a *.tf file. Mirrors the local .pre-commit-config.yaml so a green
+# commit locally means a green check here.
+#
+# Scope: ONLY iam-user-for-ssm-sessions/terraform-example — the one self-contained,
+# runnable example. The user_claude_science_ssm.tf copies bundled inside skills/
+# are illustrative snippets (no providers/variables of their own, and with the
+# accepted-finding suppressions elided for readability); they are intentionally
+# NOT validated or scanned. See iam-user-for-ssm-sessions/ for the canonical file.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "iam-user-for-ssm-sessions/terraform-example/**"
+      - ".tflint.hcl"
+      - ".github/workflows/terraform.yml"
+  pull_request:
+    paths:
+      - "iam-user-for-ssm-sessions/terraform-example/**"
+      - ".tflint.hcl"
+      - ".github/workflows/terraform.yml"
+
+permissions:
+  contents: read
+
+env:
+  TF_DIR: iam-user-for-ssm-sessions/terraform-example
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.5"
+
+      # --- format (fails on any unformatted file) ---
+      - name: terraform fmt
+        run: terraform fmt -check -recursive -diff "$TF_DIR"
+
+      # --- validate (needs provider download) ---
+      - name: terraform validate
+        run: |
+          set -euo pipefail
+          terraform -chdir="$TF_DIR" init -backend=false -input=false
+          terraform -chdir="$TF_DIR" validate
+
+      # --- lint ---
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+      - name: tflint
+        run: |
+          tflint --chdir="$TF_DIR" --init
+          tflint --chdir="$TF_DIR" --config="$GITHUB_WORKSPACE/.tflint.hcl"
+
+      # --- static security scan ---
+      - name: trivy config scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: iam-user-for-ssm-sessions/terraform-example
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: "1"
+
+      - name: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: iam-user-for-ssm-sessions/terraform-example
+          framework: terraform
+          quiet: true
+          compact: true

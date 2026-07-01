@@ -10,6 +10,9 @@ credentials
 .aws/
 *.tfvars
 terraform.tfstate*
+.terraform/
+.terraform.lock.hcl
+crash.log
 
 # OS / editor cruft
 .DS_Store

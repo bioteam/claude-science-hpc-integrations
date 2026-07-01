@@ -27,14 +27,39 @@ must be looked at by a human before the commit lands.)
 ## 2. Where things go
 
 - **`skills/`** — a reusable Claude Agent Skill. One folder per skill; see
-  [`skills/README.md`](skills/README.md) and the
-  [`skills/_template/`](skills/_template) starter.
-- **`howtos/`** — a human-readable, task-oriented guide. One Markdown file (or one
-  folder if it has assets). See [`howtos/README.md`](howtos/README.md).
+  [`skills/README.md`](skills/README.md). Start by copying an existing skill folder
+  and replacing its `SKILL.md` and contents.
+- **`iam-user-for-ssm-sessions/`** (and future infrastructure examples) — Terraform
+  and/or console recipes for the AWS resources a skill depends on. See its
+  [`README.md`](iam-user-for-ssm-sessions/README.md) for the layout to mirror
+  (self-contained example, a README, and — for Terraform — linter-clean code).
+- **`howtos/`** — a human-readable, task-oriented guide. Not created yet; when the
+  first guide lands, add the folder with its own `README.md` index.
 - **`helpers/`** — reference snippets, checklists, config templates that skills and
-  how-tos cite. See [`helpers/README.md`](helpers/README.md).
+  how-tos cite. Not created yet; add the folder with a `README.md` when needed.
 
-## 3. Style
+## 3. Terraform & infrastructure examples
+
+Terraform in this repo is formatted, linted, and statically security-scanned, and
+CI enforces it on every `*.tf` change ([`.github/workflows/terraform.yml`](.github/workflows/terraform.yml)).
+Before committing Terraform:
+
+```bash
+pre-commit install   # once — wires the git hook
+tflint --init        # once — installs the AWS ruleset plugin
+pre-commit run --all-files   # fmt + tflint + trivy + checkov + gitleaks
+```
+
+- Keep examples **self-contained and `terraform validate`-clean** (declare the
+  variables and providers they reference), so the scanners have something to check.
+- Keep the scan **green**. If a finding is a deliberate design choice, suppress it
+  inline with a one-line rationale (`#tfsec:ignore:<id>` / `#checkov:skip=<id>:<why>`)
+  rather than leaving it unexplained — see `iam-user-for-ssm-sessions/terraform-example/`
+  for the pattern.
+- Use placeholders for every real identifier (instance ids, account ids, hostnames),
+  exactly as in rule 1.
+
+## 4. Style
 
 - Markdown, wrapped at a sensible width, fenced code blocks with a language tag.
 - Lead with *when to use this* — the first paragraph of any doc should tell a reader
@@ -43,12 +68,13 @@ must be looked at by a human before the commit lands.)
 - Keep skill `description` fields specific and trigger-oriented; that text is how
   Claude decides to load the skill.
 
-## 4. Commit messages
+## 5. Commit messages
 
 - Imperative mood, concise subject line (e.g. `Add slurm-gres-gpu howto`).
 - Do **not** add AI co-author/attribution trailers.
 
-## 5. Review
+## 6. Review
 
-Open a PR against `main`. At minimum, a reviewer confirms the no-secrets checklist
-and that new skills have a valid `SKILL.md` front matter block.
+Open a PR against `main`. At minimum, a reviewer confirms the no-secrets checklist,
+that new skills have a valid `SKILL.md` front matter block, and that any Terraform
+change passes fmt / tflint / trivy / checkov (the CI check must be green).

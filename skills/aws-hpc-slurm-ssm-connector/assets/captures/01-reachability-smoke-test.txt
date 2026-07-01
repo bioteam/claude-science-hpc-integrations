@@ -1,0 +1,14 @@
+$ # smoke test over the SSM-proxied SSH provider — host.compute.create('ssh:tenvie-hpc-login-ssm').call_command(...)
+$ hostname; id; sinfo -s; squeue
+ip-10-0-0-10
+uid=1001(hpcuser) gid=1001(hpc-users) groups=1001(hpc-users)
+PARTITION     AVAIL  TIMELIMIT   NODES(A/I/O/T) NODELIST
+cpu*             up   infinite        0/20/0/20 cpu-dy-[1-19],cpu-st-1
+driver           up   infinite          0/3/0/3 driver-dy-[1-3]
+cpu-highmem      up   infinite          0/5/0/5 cpu-highmem-dy-[1-5]
+gpu              up   infinite        0/24/0/24 gpu-dy-[1-24]
+gpu4x            up   infinite          0/8/0/8 gpu4x-dy-[1-8]
+ml-gpu-s         up   infinite          0/3/0/3 ml-gpu-s-dy-[1-3]
+ml-cpu           up   infinite          0/3/0/3 ml-cpu-dy-[1-3]
+qm               up   infinite        0/10/0/10 qm-dy-[1-10]
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)

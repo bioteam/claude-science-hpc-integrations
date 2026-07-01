@@ -1,0 +1,4 @@
+# Copy to terraform.tfvars and edit. terraform.tfvars is gitignored (*.tfvars).
+aws_region        = "us-east-1"
+account_name      = "example"
+region_short_name = "use1"
